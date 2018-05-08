@@ -48,7 +48,7 @@ services:
       - core_stack:/data
     labels:
       - "traefik.backend=portainer"
-      - "traefik.frontend.rule=Host:portainer.danielheene.de"
+      - "traefik.frontend.rule=Host:portainer.DOMAIN_PARAM_HERE"
       - "traefik.enable=true"
       - "traefik.port=9000"
       - "traefik.default.protocol=http"

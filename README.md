@@ -5,7 +5,7 @@ A small docker-compose stack which I regularly deploy to my docker servers.
 
 * [portainer](https://github.com/portainer/portainer) - as management-gui 
 * [watchtower](https://github.com/v2tec/watchtower) - as auto updater for containers
-* [traefik](https://github.com/containous/traefik) - as load balancer
+* [traefik](https://github.com/containous/traefik) - as reverse proxy or load balancer
 * a catch-all container based on [nginx](http://nginx.org/) and [hml5bp](https://github.com/h5bp/html5-boilerplate)'s 404-page
 
 ## Usage

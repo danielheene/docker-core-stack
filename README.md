@@ -1,5 +1,5 @@
 # docker-core-stack
-A small docker-compose stack which I regularly deploy to my docker servers. 
+A small docker-compose stack which I use as basic setup for my non-production docker environments.
 
 ## Services
 
@@ -10,19 +10,10 @@ A small docker-compose stack which I regularly deploy to my docker servers.
 
 ## Usage
 
-After checkout run `./configure.sh` with the following arguments to configure `docker-compose.yml` and other config files:
-
-```
-  --email, -e       required email for requesting acme ssl certs
-  --domain, -d      required base domain for traefik subdomain mappings
-```
-
-__Example:__
-
-```
-./configure.sh --domain=example.com --email=mail@example.com
-docker-compose up -d
-```
+* copy `.env.example` to `.env`
+* adjust containing variables
+* run `make init` for creating configuration structure
+* run `docker-compose up -d`
 
 ----
 ## License

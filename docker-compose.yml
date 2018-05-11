@@ -1,0 +1,82 @@
+version: '3'
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    restart: always
+    command: --docker \
+          --docker.endpoint="unix:///var/run/docker.sock" \
+          --docker.domain="${DOCKER_DOMAIN?err}" \
+          --docker.watch="true" \
+          --docker.exposedbydefault="false"
+          --defaultentrypoints="http,https" \
+          --entryPoints="Name:http Address:${TRAEFIK_HTTP_ADDRESS?err}" \
+          --entryPoints="Name:https Address:${TRAEFIK_HTTPS_ADDRESS?err} tls" \
+          --acme \
+          --acme.storage="acme.json" \
+          --acme.email=${TRAEFIK_ACME_EMAIL?err} \
+          --acme.entrypoint="https" \
+          --acme.onhostrule="true" \
+          --acme.httpchallenge \
+          --acme.httpchallenge.entrypoint="http"
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_DATA_DIR?err}/etc/traefik/acme.json:/acme.json
+      - /dev/null:/traefik.toml
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  traefik-catchall:
+    container_name: traefik-catchall
+    image: nginx:latest
+    restart: always
+    networks:
+      - internal
+    depends_on:
+      - traefik
+    volumes:
+      - ${DOCKER_DATA_DIR?err}/etc/traefik/catchall.html:/usr/share/nginx/html/index.html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=catchall"
+      - "traefik.frontend.rule=HostRegexp:{catchall:.*}"
+      - "traefik.frontend.priority=1"
+      - "traefik.port=80"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer:latest
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_DATA_DIR?err}/etc/portainer:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=portainer"
+      - "traefik.frontend.rule=Host:portainer.${DOCKER_DOMAIN?err}"
+      - "traefik.port=9000"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    container_name: watchtower
+    image: v2tec/watchtower:latest
+    restart: always
+    networks:
+      - internal
+    command: --cleanup --label-enable
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  internal:

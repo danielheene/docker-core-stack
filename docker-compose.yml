@@ -72,9 +72,25 @@ services:
     restart: always
     networks:
       - internal
-    command: --cleanup --label-enable
+    command: --label-enable
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  docker-gc:
+    container_name: docker-gc
+    image: clockworksoul/docker-gc-cron
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_DATA_DIR?err}/etc/docker-gc/docker-gc-exclude:/etc/docker-gc-exclude:ro
+    environment:
+      - CRON=0 */6 * * *
+      - CLEAN_UP_VOLUMES=1
+      - TZ=${DOCKER_TZ:-Europe/Berlin}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
